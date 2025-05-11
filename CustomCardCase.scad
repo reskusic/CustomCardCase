@@ -22,7 +22,7 @@ module _outer_case_shell(shell_dimensions)
 }
 
 // minimum_wall_width should be customized based on printer line width
-module custom_card_case_bottom(card_width, card_height, deck_depth, minimum_wall_width=2)
+module custom_card_case_bottom(card_width, card_height, deck_depth, minimum_wall_width=2, center=true)
 {
     module lid_inset(inner_dimensions, wall_width, overlap_depth)
     {
@@ -30,6 +30,20 @@ module custom_card_case_bottom(card_width, card_height, deck_depth, minimum_wall
             difference() {
                 square([inner_dimensions.x + 2 * wall_width, inner_dimensions.y + 2 * wall_width], center=true);
                 square([inner_dimensions.x, inner_dimensions.y], center=true);
+            }
+        }
+    }
+
+    module apply_final_position(outer_dimensions, lid_height, lid_overlap_depth)
+    {
+        if (center) {
+            translate([0, 0, (lid_height - lid_overlap_depth)/2]) {
+                children();
+            }
+        }
+        else {
+            translate(outer_dimensions/2) {
+                children();
             }
         }
     }
@@ -47,23 +61,39 @@ module custom_card_case_bottom(card_width, card_height, deck_depth, minimum_wall
 
     assert(lid_overlap_depth < lid_height - minimum_wall_width - 4);
 
-    union() {
-        difference() {
-            _outer_case_shell(outer_dimensions);
-            cube(inner_dimensions, center=true);
-            translate([0, 0,(outer_dimensions.z / 2) - (lid_height / 2)]) {
-                cube([outer_dimensions.x, outer_dimensions.y, lid_height], center=true);
+    apply_final_position(outer_dimensions, lid_height, lid_overlap_depth) {
+        union() {
+            difference() {
+                _outer_case_shell(outer_dimensions);
+                cube(inner_dimensions, center=true);
+                translate([0, 0,(outer_dimensions.z / 2) - (lid_height / 2)]) {
+                    cube([outer_dimensions.x, outer_dimensions.y, lid_height], center=true);
+                }
             }
-        }
-        translate([0, 0, (outer_dimensions.z / 2) - lid_height + (lid_overlap_depth / 2)]) {
-            lid_inset(inner_dimensions, minimum_wall_width, lid_overlap_depth);
+            translate([0, 0, (outer_dimensions.z / 2) - lid_height + (lid_overlap_depth / 2)]) {
+                lid_inset(inner_dimensions, minimum_wall_width, lid_overlap_depth);
+            }
         }
     }
 }
 
 // minimum_wall_width should be customized based on printer line width
-module custom_card_case_top(card_width, card_height, deck_depth, minimum_wall_width=2)
+module custom_card_case_top(card_width, card_height, deck_depth, minimum_wall_width=2, center=true)
 {
+    module apply_final_position(outer_dimensions, lid_height)
+    {
+        if (center) {
+            translate([0, 0, outer_dimensions.z/2 - lid_height/2]) {
+                children();
+            }
+        }
+        else {
+            translate(outer_dimensions/2) {
+                children();
+            }
+        }
+    }
+
     inner_dimensions = [
         card_width + card_fit_padding + 2 * minimum_wall_width,
         deck_depth + card_fit_padding + 2 * minimum_wall_width,
@@ -74,12 +104,14 @@ module custom_card_case_top(card_width, card_height, deck_depth, minimum_wall_wi
 
     lid_height = lid_fraction * outer_dimensions.z;
 
-    union() {
-        difference() {
-            _outer_case_shell(outer_dimensions);
-            cube(inner_dimensions, center=true);
-            translate([0, 0, lid_height]) {
-                cube([outer_dimensions.x, outer_dimensions.y, outer_dimensions.z - lid_height], center=true);
+    apply_final_position(outer_dimensions, lid_height) {
+        union() {
+            difference() {
+                _outer_case_shell(outer_dimensions);
+                cube(inner_dimensions, center=true);
+                translate([0, 0, lid_height]) {
+                    cube([outer_dimensions.x, outer_dimensions.y, outer_dimensions.z], center=true);
+                }
             }
         }
     }
