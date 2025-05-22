@@ -4,6 +4,10 @@ This library creates 3D models of custom storage cases for gaming cards (from bo
 
 ![A 3D graphical rendering of two parts of a card storage box. On the left is the main part of the box. On the right is the lid, which is inverted.](assets/both_parts_rendered.png)
 
+## License
+
+See the LICENSE file in the top-level directory.
+
 ## Library Modules
 
 ### **custom_card_case_bottom(card_width, card_height, deck_depth, minimum_wall_width=2, center=true)**
